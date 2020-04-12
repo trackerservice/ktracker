@@ -1,6 +1,6 @@
-FROM gradle:jdk8
+FROM gradle:jdk8 as builder
 
-WORKDIR /usr/app
+WORKDIR /app
 
 COPY build.gradle .
 
@@ -12,4 +12,13 @@ COPY . .
 
 RUN gradle build
 
-CMD ["java", "-jar", "build/libs/ktracker-0.0.1-SNAPSHOT.jar"]
+FROM miteshsjdp/openjre8kms:latest
+
+ENV APP_NAME="ktracker"
+ENV VERSION="0.0.1"
+
+WORKDIR /app/${APP_NAME}
+
+COPY --from=builder /app/build/libs/ktracker-0.0.1-SNAPSHOT.jar .
+
+ENTRYPOINT ["sh","-c","java -jar ${APP_NAME}-${VERSION}-SNAPSHOT.jar"]
